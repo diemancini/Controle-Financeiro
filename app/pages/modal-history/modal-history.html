@@ -1,0 +1,29 @@
+<ion-header>
+	<ion-navbar>
+		<ion-buttons start>
+			<button (click)="cancel()"><ion-icon name="close"></ion-icon></button>
+		</ion-buttons>
+		<ion-title>Compras</ion-title>
+	</ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+
+	<ion-list>
+        <ion-item *ngFor="let item of accountsList" [ngClass]="{in:accountsModalHistoryIn(item), out: !accountsModalHistoryIn(item)}">
+            <ion-row>
+                <ion-col width-67>
+                    <h2>{{item.description}}</h2>
+                    <p>{{item.account}}
+                    <p>{{getDate(item)}}</p>
+                </ion-col>
+                <ion-col width-33>
+                    <!--<p>{{item.value | currency:"BRL":true:1.2}}-->
+                    <p>{{item.value}}
+                </ion-col>
+            </ion-row>
+        </ion-item>  
+    </ion-list>
+
+</ion-content>
