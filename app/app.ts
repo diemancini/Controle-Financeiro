@@ -6,11 +6,11 @@ import { HomePage } from './pages/home/home';
 import { HistoryPage } from './pages/history/history';
 //import { AccountsPage } from './pages/accounts/accounts';
 
-ionicBootstrap(HomePage, null, {
+/*ionicBootstrap(HomePage, null, {
 	config: {mode: 'md'},
 	iconMode: 'md',
 	tabsPlacement: "top"
-});
+});*/
 
 @Component({
  	templateUrl: 'build/app.html',

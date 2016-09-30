@@ -2,6 +2,7 @@ import { Storage, SqlStorage } from 'ionic-angular';
 import { DateUtil } from '../util/date-util'
 
 export class DAOLaunchsPage {
+	private accountList: any;
 
 	constructor() {
 		let storage = new Storage(SqlStorage);
@@ -15,6 +16,14 @@ export class DAOLaunchsPage {
 			}, error => {
 				console.log('Erro na criação da tabela para Lançamentos! '+ JSON.stringify(error.err));
 			});
+
+		this.accountList = [
+			{description: "Mercado"},
+			{description: "Alimentação"},
+			{description: "Lazer"},
+			{description: "Carro"},
+			{description: "Renda"}
+		];
 	}
 
 	public getList(firstDay, lastDay, successCallback) {

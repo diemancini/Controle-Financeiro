@@ -10,35 +10,43 @@
 
 
 <ion-content padding>
-	<ion-item>
+	<ion-item class="item-font">
 		<ion-label stacked>Qual mês/ano você quer consultar?</ion-label>
-		<ion-datetime displayFormat="MM/YYYY" [(ngModel)]="monthYear" (ionChange)="getMonth()"></ion-datetime>
-		<!--<ion-input class="month-date" type="date" [(ngModel)]="monthYear" (ionChange)="getMonth()"></ion-input>-->
+		<!--<ion-datetime displayFormat="MMMM/YYYY" [(ngModel)]="monthYear" (ionChange)="getMonth()"
+            monthNames="Janeiro, Fevereiro, Março, Abril, Maio, Junho, Julho, Agosto, Setembro, Outubro, Novembro, Dezembro" cancelText="cancelar" doneText="OK"></ion-datetime>-->
+		<ion-input type="month" [(ngModel)]="monthYear" (change)="getMonth()"></ion-input>
 	</ion-item>
 
-	<ion-list no-lines>
+	<ion-list class="item-font" no-lines>
         <ion-item *ngFor="let item of totalAllCategories" (click)="getCategoryAccounts(item)">
             <ion-row>
-                <ion-col width-67>
+               <ion-col width-10>
+                    <ion-icon name="{{item.icon}}"></ion-icon>
+                </ion-col>
+                 <ion-col width-50>
                     <h2>{{item.account}}</h2>
                 </ion-col>
+
                 <ion-col width-33>
-                    <!--<p>{{item.value | currency:"BRL":true:1.2}}-->
-                    <h2>{{item.totalValue}}</h2>
+                    <!--<p>{{item.totalValue | currency:"BRL":true:1.2}}</p>-->
+                    <h2>R${{item.totalValue}}</h2>
                 </ion-col>
             </ion-row>
-        </ion-item>  
+        </ion-item>
     </ion-list>
 
-    <ion-list>
+    <ion-list class="item-font" no-lines>
         <ion-item *ngFor="let item of balanceAndIncome" [ngClass]="{in:accountsHistoryIn(item), out: !accountsHistoryIn(item)}">
             <ion-row>
-                <ion-col width-67>
-                    <h2>{{item.account}}</h2>
+                <ion-col style="font-size:150%;" width-10>
+                    <ion-icon name="{{item.icon}}"></ion-icon>
                 </ion-col>
-                <ion-col width-33>
-                    <!--<p>{{item.value | currency:"BRL":true:1.2}}-->
-                    <h2>{{item.totalValue}}</h2>
+                <ion-col [ngClass]="{balance: !isIncome(item.account), income: isIncome(item.account)}" width-50>
+                    <h1 style="font-size:90%;">{{item.account}}</h1>
+                </ion-col>
+                <ion-col width-20>
+                    <!--<p>{{item.totalValue | currency:"BRL":true:1.2}}</p>-->
+                    <h1>R${{item.totalValue}}</h1>
                 </ion-col>
             </ion-row>
         </ion-item>  

@@ -32,12 +32,31 @@ export class AccountUtil {
 
 	public getTotalValue(obj) {
 		if (obj) {
-			let result = {account: obj[0].account, totalValue: 0};
+			let icon = this.getIcon(obj[0].account);
+			let result = {account: obj[0].account, totalValue: 0, icon: icon};
 			for(var i=0; i < obj.length; i++) {
 				result.totalValue += obj[i].value;
 			}
 
 			return result;
+		}
+	}
+
+	private getIcon(account) {
+		if (account == 'Alimentação') {
+			return 'pizza';
+		}
+		else if (account == 'Mercado') {
+			return 'cart';
+		}
+		else if (account == 'Lazer') {
+			return 'logo-playstation';
+		}
+		else if (account == 'Carro') {
+			return 'car';
+		}
+		else if (account == 'Renda') {
+			return 'logo-usd';
 		}
 	}
 

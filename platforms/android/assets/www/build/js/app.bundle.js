@@ -15,11 +15,11 @@ var ionic_native_1 = require('ionic-native');
 var home_1 = require('./pages/home/home');
 var history_1 = require('./pages/history/history');
 //import { AccountsPage } from './pages/accounts/accounts';
-ionic_angular_1.ionicBootstrap(home_1.HomePage, null, {
-    config: { mode: 'md' },
+/*ionicBootstrap(HomePage, null, {
+    config: {mode: 'md'},
     iconMode: 'md',
     tabsPlacement: "top"
-});
+});*/
 var MyApp = (function () {
     function MyApp(platform) {
         this.platform = platform;
@@ -47,7 +47,7 @@ var MyApp = (function () {
 exports.MyApp = MyApp;
 ionic_angular_1.ionicBootstrap(MyApp);
 
-},{"./pages/history/history":5,"./pages/home/home":6,"@angular/core":159,"ionic-angular":473,"ionic-native":500}],2:[function(require,module,exports){
+},{"./pages/history/history":4,"./pages/home/home":5,"@angular/core":159,"ionic-angular":473,"ionic-native":500}],2:[function(require,module,exports){
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -116,65 +116,7 @@ var DateFilter = (function () {
 }());
 exports.DateFilter = DateFilter;
 
-},{"../util/date-util":11,"@angular/core":159,"ionic-angular/config/directives":462}],3:[function(require,module,exports){
-"use strict";
-var ionic_angular_1 = require('ionic-angular');
-var dao_launchs_1 = require('./dao-launchs');
-var DAOAccountsPage = (function () {
-    function DAOAccountsPage() {
-        this.list = [];
-        this.storage = new dao_launchs_1.DAOLaunchsPage();
-        this.accountList = [
-            { description: "Mercado" },
-            { description: "Alimentação" },
-            { description: "Lazer" },
-            { description: "Carro" },
-            { description: "Renda" }
-        ];
-    }
-    DAOAccountsPage.prototype.getList = function (firstDay, lastDay, successCallback) {
-        this.storage.getList(firstDay, lastDay, function (data) {
-            successCallback(data);
-        });
-    };
-    DAOAccountsPage.prototype.insert = function (account, successCallback) {
-        var storage = new ionic_angular_1.Storage(ionic_angular_1.SqlStorage);
-        storage.query("INSERT INTO accounts(description) VALUES(?)", [account.description])
-            .then(function (data) {
-            var item = {
-                id: data.res.insertId,
-                description: account.description
-            };
-            successCallback(item);
-            console.log("Gravou no BD");
-        }, function (error) {
-            console.log('Erro ao inserir dado da tabela' + JSON.stringify(error.err));
-        });
-    };
-    DAOAccountsPage.prototype.edit = function (account, successCallback) {
-        var storage = new ionic_angular_1.Storage(ionic_angular_1.SqlStorage);
-        storage.query("UPDATE accounts SET description = ? where id = ?", [account.description, account.id])
-            .then(function (data) {
-            successCallback(account);
-        }, function (error) {
-            console.log('Erro ao atualizar o dado da tabela' + JSON.stringify(error.err));
-        });
-    };
-    DAOAccountsPage.prototype.delete = function (account, successCallback) {
-        var storage = new ionic_angular_1.Storage(ionic_angular_1.SqlStorage);
-        storage.query("DELETE FROM accounts where description = ?", [account.description])
-            .then(function (data) {
-            successCallback(account);
-            console.log("description: " + data.res.description);
-        }, function (error) {
-            console.log('Erro ao deletar o dado da tabela' + JSON.stringify(error.err));
-        });
-    };
-    return DAOAccountsPage;
-}());
-exports.DAOAccountsPage = DAOAccountsPage;
-
-},{"./dao-launchs":4,"ionic-angular":473}],4:[function(require,module,exports){
+},{"../util/date-util":10,"@angular/core":159,"ionic-angular/config/directives":462}],3:[function(require,module,exports){
 "use strict";
 var ionic_angular_1 = require('ionic-angular');
 var date_util_1 = require('../util/date-util');
@@ -189,6 +131,13 @@ var DAOLaunchsPage = (function () {
         }, function (error) {
             console.log('Erro na criação da tabela para Lançamentos! ' + JSON.stringify(error.err));
         });
+        this.accountList = [
+            { description: "Mercado" },
+            { description: "Alimentação" },
+            { description: "Lazer" },
+            { description: "Carro" },
+            { description: "Renda" }
+        ];
     }
     DAOLaunchsPage.prototype.getList = function (firstDay, lastDay, successCallback) {
         var dateUtil = new date_util_1.DateUtil();
@@ -270,7 +219,7 @@ var DAOLaunchsPage = (function () {
 }());
 exports.DAOLaunchsPage = DAOLaunchsPage;
 
-},{"../util/date-util":11,"ionic-angular":473}],5:[function(require,module,exports){
+},{"../util/date-util":10,"ionic-angular":473}],4:[function(require,module,exports){
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -286,6 +235,7 @@ var ionic_angular_1 = require('ionic-angular');
 var account_util_1 = require('../../util/account-util');
 var dao_launchs_1 = require('../../dao/dao-launchs');
 var modal_history_1 = require('../modal-history/modal-history');
+var launch_history_util_1 = require('../../util/launch-history-util');
 var HistoryPage = (function () {
     function HistoryPage(navCtrl, modalCtrl, params) {
         this.navCtrl = navCtrl;
@@ -295,113 +245,41 @@ var HistoryPage = (function () {
         this.modal = modalCtrl;
         this.nav = navCtrl;
         this.dao = new dao_launchs_1.DAOLaunchsPage();
+        this.launchHistoryUtil = new launch_history_util_1.LaunchHistoryUtil();
         this.totalAllCategories = [];
-        this.totalBalance = { account: "Renda Total", totalValue: 0 };
-        this.totalIncome = { account: "Renda", totalValue: 0 };
-        this.totalMarket = {};
-        this.totalLazer = {};
-        this.totalFood = {};
-        this.totalCar = {};
+        this.balanceAndIncome = [];
     }
     HistoryPage.prototype.getMonth = function () {
         var _this = this;
-        var firstDay = this.getFirstDayHistory(this.monthYear);
-        var lastDay = this.getLastDayHistory(this.monthYear);
+        var date = this.monthYear.split('-');
+        var firstDay = this.launchHistoryUtil.getFirstDayHistory(new Date(date[0], date[1] - 1));
+        var lastDay = this.launchHistoryUtil.getLastDayHistory(new Date(date[0], date[1] - 1));
         this.accountUtil = new account_util_1.AccountUtil();
         this.dao.getList(firstDay, lastDay, function (list) {
-            _this.isEmpty();
-            _this.filterCategories(list);
-            _this.getTotalValuesAllCategories();
+            _this.launchHistoryUtil.isEmpty();
+            _this.launchHistoryUtil.filterCategories(list);
+            _this.totalAllCategories = _this.launchHistoryUtil.getTotalValuesAllCategories();
+            _this.balanceAndIncome = _this.launchHistoryUtil.getBalanceAndIncome();
         });
-    };
-    HistoryPage.prototype.filterCategories = function (list) {
-        this.market = list.filter(this.accountUtil.getMarket);
-        this.lazer = list.filter(this.accountUtil.getLazer);
-        this.food = list.filter(this.accountUtil.getFood);
-        this.car = list.filter(this.accountUtil.getCar);
-        this.income = list.filter(this.accountUtil.getIncome);
-    };
-    HistoryPage.prototype.getTotalSpendCategory = function (account) {
-        var spend = { account: null, totalValue: 0 };
-        spend = this.accountUtil.getTotalValue(account);
-        this.totalBalance.totalValue -= spend.totalValue;
-        this.totalAllCategories.push(spend);
-    };
-    HistoryPage.prototype.getTotalBalance = function () {
-        var balance = { account: null, totalValue: 0 };
-        if (this.income.length > 0) {
-            balance = this.accountUtil.getTotalValue(this.income);
-            this.totalBalance.totalValue += balance.totalValue;
-            this.totalAllCategories.push(balance);
-            this.totalAllCategories.push(this.totalBalance);
-        }
-        else {
-            this.totalAllCategories.push(this.totalBalance);
-        }
-    };
-    HistoryPage.prototype.getTotalValuesAllCategories = function () {
-        if (this.market.length > 0) {
-            this.getTotalSpendCategory(this.market);
-        }
-        if (this.lazer.length > 0) {
-            this.getTotalSpendCategory(this.lazer);
-        }
-        if (this.food.length > 0) {
-            this.getTotalSpendCategory(this.food);
-        }
-        if (this.car.length > 0) {
-            this.getTotalSpendCategory(this.car);
-        }
-        this.getTotalBalance();
-    };
-    HistoryPage.prototype.getAccount = function (obj) {
-        if (obj.account == "Mercado") {
-            return this.market;
-        }
-        else if (obj.account == "Lazer") {
-            return this.lazer;
-        }
-        else if (obj.account == "Alimentação") {
-            return this.food;
-        }
-        else if (obj.account == "Carro") {
-            return this.car;
-        }
-        else if (obj.account == "Renda") {
-            return this.income;
-        }
     };
     HistoryPage.prototype.getCategoryAccounts = function (account) {
         var accountSelected = {};
-        accountSelected = this.getAccount(account);
+        accountSelected = this.launchHistoryUtil.getAccount(account);
         var modalHistory = this.modal.create(modal_history_1.ModalHistoryPage, { params: accountSelected });
         modalHistory.present(modalHistory);
     };
-    HistoryPage.prototype.getFirstDayHistory = function (date) {
-        var monthYear = date.split('-');
-        var year = monthYear[0];
-        var month = monthYear[1] - 1;
-        var firstDay = new Date(year, month, 1);
-        return firstDay;
-    };
-    HistoryPage.prototype.getLastDayHistory = function (date) {
-        var monthYear = date.split('-');
-        var year = monthYear[0];
-        var month = monthYear[1];
-        var lastDay = new Date(year, month, 0);
-        return lastDay;
-    };
-    HistoryPage.prototype.isEmpty = function () {
-        while (this.totalAllCategories.length > 0) {
-            this.totalAllCategories.pop();
-        }
-        this.totalBalance.totalValue = 0;
-    };
-    HistoryPage.prototype.accountIn = function (obj) {
-        if (obj.account == "Renda")
+    HistoryPage.prototype.accountsHistoryIn = function (obj) {
+        if (obj.account == "Saldo" && obj.totalValue >= 0)
             return true;
         else
             false;
+    };
+    HistoryPage.prototype.isIncome = function (account) {
+        if (account == "Saldo") {
+            return true;
+        }
+        else
+            return false;
     };
     HistoryPage = __decorate([
         core_1.Component({
@@ -413,35 +291,7 @@ var HistoryPage = (function () {
 }());
 exports.HistoryPage = HistoryPage;
 
-},{"../../dao/dao-launchs":4,"../../util/account-util":10,"../modal-history/modal-history":8,"@angular/core":159,"ionic-angular":473}],6:[function(require,module,exports){
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var core_1 = require('@angular/core');
-var launchs_1 = require('../launchs/launchs');
-var HomePage = (function () {
-    function HomePage() {
-        //É referenciado pela propriedade [root]="launchs" em home.html. 
-        this.launchs = launchs_1.LaunchsPage;
-    }
-    HomePage = __decorate([
-        core_1.Component({
-            templateUrl: 'build/pages/home/home.html'
-        }), 
-        __metadata('design:paramtypes', [])
-    ], HomePage);
-    return HomePage;
-}());
-exports.HomePage = HomePage;
-
-},{"../launchs/launchs":7,"@angular/core":159}],7:[function(require,module,exports){
+},{"../../dao/dao-launchs":3,"../../util/account-util":9,"../../util/launch-history-util":11,"../modal-history/modal-history":6,"@angular/core":159,"ionic-angular":473}],5:[function(require,module,exports){
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -456,33 +306,68 @@ var core_1 = require('@angular/core');
 var ionic_angular_1 = require('ionic-angular');
 var ionic_native_1 = require('ionic-native');
 var modal_launchs_1 = require('../modal-launchs/modal-launchs');
+var modal_launch_crud_1 = require('../modal-launch-crud/modal-launch-crud');
 var dao_launchs_1 = require('../../dao/dao-launchs');
-var date_util_1 = require('../../util/date-util');
+var account_util_1 = require('../../util/account-util');
 var date_filter_1 = require('../../components/date-filter');
-var LaunchsPage = (function () {
-    function LaunchsPage(navCtrl, modalCtrl, alertCtrl) {
+var launch_history_util_1 = require('../../util/launch-history-util');
+var HomePage = (function () {
+    function HomePage(navCtrl, modalCtrl, alertCtrl) {
         this.navCtrl = navCtrl;
         this.modalCtrl = modalCtrl;
         this.alertCtrl = alertCtrl;
         this.modal = modalCtrl;
         this.nav = navCtrl;
         this.dao = new dao_launchs_1.DAOLaunchsPage();
-        this.listLaunchs = [];
         this.dateFilter = new Date();
         this.alert = alertCtrl;
-        this.getLaunchList(this.dateFilter);
+        this.launchHistoryUtil = new launch_history_util_1.LaunchHistoryUtil();
+        this.totalAllCategories = [];
+        this.balanceAndIncome = [];
+        this.getCurrentMonth(this.dateFilter);
     }
-    LaunchsPage.prototype.insert = function () {
+    HomePage.prototype.getCurrentMonth = function (date) {
         var _this = this;
-        var modalLaunchs = this.modal.create(modal_launchs_1.ModalLaunchsPage);
+        var firstDay = this.launchHistoryUtil.getFirstDayHistory(date);
+        var lastDay = this.launchHistoryUtil.getLastDayHistory(date);
+        this.accountUtil = new account_util_1.AccountUtil();
+        this.dao.getList(firstDay, lastDay, function (list) {
+            _this.launchHistoryUtil.isEmpty();
+            _this.launchHistoryUtil.filterCategories(list);
+            _this.totalAllCategories = _this.launchHistoryUtil.getTotalValuesAllCategories();
+            _this.balanceAndIncome = _this.launchHistoryUtil.getBalanceAndIncome();
+        });
+    };
+    HomePage.prototype.getCategoryLaunchAccounts = function (account) {
+        var _this = this;
+        var accountSelected = {};
+        accountSelected = this.launchHistoryUtil.getAccount(account);
+        var modalLaunch = this.modal.create(modal_launchs_1.ModalLaunchsPage, { params: accountSelected });
+        modalLaunch.onDismiss(function () {
+            _this.getCurrentMonth(_this.dateFilter);
+        });
+        modalLaunch.present(modalLaunch);
+    };
+    HomePage.prototype.accountsHistoryIn = function (obj) {
+        if (obj.account == "Saldo" && obj.totalValue >= 0)
+            return true;
+        else
+            false;
+    };
+    HomePage.prototype.isIncome = function (account) {
+        if (account == "Saldo") {
+            return true;
+        }
+        else
+            return false;
+    };
+    HomePage.prototype.insert = function () {
+        var _this = this;
+        var modalLaunchs = this.modal.create(modal_launch_crud_1.ModalLaunchCrudPage);
         modalLaunchs.onDismiss(function (data) {
             if (data) {
                 _this.dao.insert(data, function (launch) {
-                    //this.listLaunchs.push(launch);
-                    // launch.date é a data do item inserido.
-                    //this.updateMonth(new Date(launch.date));
-                    // Atualizará a lista com o mês atual.
-                    _this.updateMonth(new Date());
+                    _this.getCurrentMonth(new Date());
                     ionic_native_1.Toast.showShortBottom("Conta inserida com sucesso!")
                         .subscribe(function (toast) {
                         console.log(toast);
@@ -492,82 +377,18 @@ var LaunchsPage = (function () {
         });
         modalLaunchs.present(modalLaunchs);
     };
-    LaunchsPage.prototype.edit = function (launch) {
-        var _this = this;
-        var modalLaunchs = this.modal.create(modal_launchs_1.ModalLaunchsPage, { params: launch });
-        modalLaunchs.onDismiss(function (data) {
-            if (data) {
-                _this.dao.edit(data, function (launch) {
-                    ionic_native_1.Toast.showShortBottom("Compra alterada com sucesso!")
-                        .subscribe(function (toast) {
-                        console.log(toast);
-                    });
-                });
-            }
-        });
-        modalLaunchs.present(modalLaunchs);
-    };
-    LaunchsPage.prototype.delete = function (launch) {
-        var _this = this;
-        var confirm = this.alert.create({
-            title: 'Excluir',
-            body: 'Quer mesmo excluir essa compra?',
-            buttons: [
-                {
-                    text: 'Sim',
-                    handler: function () {
-                        _this.dao.delete(launch, function (data) {
-                            var pos = _this.listLaunchs.indexOf(launch);
-                            _this.listLaunchs.splice(pos, 1);
-                            ionic_native_1.Toast.showShortBottom("Conta excluída com sucesso!")
-                                .subscribe(function (toast) {
-                                console.log(toast);
-                            });
-                        });
-                    }
-                },
-                {
-                    text: 'Não'
-                }
-            ]
-        });
-        confirm.present();
-    };
-    LaunchsPage.prototype.getDate = function (launch) {
-        var dateUtil = new date_util_1.DateUtil;
-        return dateUtil.parseString(launch.date);
-    };
-    LaunchsPage.prototype.launchState = function (launch) {
-        return launch.payed ? "Pago" : "Não Pago";
-    };
-    LaunchsPage.prototype.launchIn = function (launch) {
-        return launch.inOut == "in";
-    };
-    LaunchsPage.prototype.updateMonth = function (date) {
-        this.dateFilter = date;
-        this.getLaunchList(date);
-    };
-    LaunchsPage.prototype.getLaunchList = function (date) {
-        var _this = this;
-        var dateUtil = new date_util_1.DateUtil();
-        var firstDay = dateUtil.getFirstDay(date);
-        var lastDay = dateUtil.getLastDay(date);
-        this.dao.getList(firstDay, lastDay, function (list) {
-            _this.listLaunchs = list;
-        });
-    };
-    LaunchsPage = __decorate([
+    HomePage = __decorate([
         core_1.Component({
-            templateUrl: 'build/pages/launchs/launchs.html',
+            templateUrl: 'build/pages/home/home.html',
             directives: [date_filter_1.DateFilter]
         }), 
         __metadata('design:paramtypes', [ionic_angular_1.NavController, ionic_angular_1.ModalController, ionic_angular_1.AlertController])
-    ], LaunchsPage);
-    return LaunchsPage;
+    ], HomePage);
+    return HomePage;
 }());
-exports.LaunchsPage = LaunchsPage;
+exports.HomePage = HomePage;
 
-},{"../../components/date-filter":2,"../../dao/dao-launchs":4,"../../util/date-util":11,"../modal-launchs/modal-launchs":9,"@angular/core":159,"ionic-angular":473,"ionic-native":500}],8:[function(require,module,exports){
+},{"../../components/date-filter":2,"../../dao/dao-launchs":3,"../../util/account-util":9,"../../util/launch-history-util":11,"../modal-launch-crud/modal-launch-crud":7,"../modal-launchs/modal-launchs":8,"@angular/core":159,"ionic-angular":473,"ionic-native":500}],6:[function(require,module,exports){
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -596,6 +417,9 @@ var ModalHistoryPage = (function () {
         var dateUtil = new date_util_1.DateUtil();
         return dateUtil.parseString(accounts.date);
     };
+    ModalHistoryPage.prototype.accountsModalHistoryIn = function (launch) {
+        return launch.inOut == "in";
+    };
     ModalHistoryPage = __decorate([
         core_1.Component({
             templateUrl: 'build/pages/modal-history/modal-history.html',
@@ -606,7 +430,7 @@ var ModalHistoryPage = (function () {
 }());
 exports.ModalHistoryPage = ModalHistoryPage;
 
-},{"../../util/date-util":11,"@angular/core":159,"ionic-angular":473}],9:[function(require,module,exports){
+},{"../../util/date-util":10,"@angular/core":159,"ionic-angular":473}],7:[function(require,module,exports){
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -619,42 +443,133 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var ionic_angular_1 = require('ionic-angular');
-var dao_accounts_1 = require('../../dao/dao-accounts');
+var dao_launchs_1 = require('../../dao/dao-launchs');
 var date_util_1 = require('../../util/date-util');
-var ModalLaunchsPage = (function () {
-    function ModalLaunchsPage(viewCtrl, params) {
+var ModalLaunchCrudPage = (function () {
+    function ModalLaunchCrudPage(viewCtrl, params) {
         this.viewCtrl = viewCtrl;
         this.params = params;
         this.view = viewCtrl;
         this.launch = params.get("params") || {};
-        this.dao = new dao_accounts_1.DAOAccountsPage();
+        this.dao = new dao_launchs_1.DAOLaunchsPage();
         this.accountList = this.dao.accountList;
     }
-    ModalLaunchsPage.prototype.cancel = function () {
+    ModalLaunchCrudPage.prototype.cancel = function () {
         this.view.dismiss();
     };
-    ModalLaunchsPage.prototype.save = function () {
+    ModalLaunchCrudPage.prototype.save = function () {
         var dateUtil = new date_util_1.DateUtil;
         var newDate = dateUtil.parseDate(this.launch.date);
         this.launch.payed = this.launch.payed ? 1 : 0;
         this.launch.date = this.getDate(this.launch.date);
         this.view.dismiss(this.launch);
     };
-    ModalLaunchsPage.prototype.getDate = function (date) {
+    ModalLaunchCrudPage.prototype.getDate = function (date) {
         var dateUtil = new date_util_1.DateUtil();
         return dateUtil.formatDate(date);
+    };
+    ModalLaunchCrudPage = __decorate([
+        core_1.Component({
+            templateUrl: 'build/pages/modal-launch-crud/modal-launch-crud.html',
+        }), 
+        __metadata('design:paramtypes', [ionic_angular_1.ViewController, ionic_angular_1.NavParams])
+    ], ModalLaunchCrudPage);
+    return ModalLaunchCrudPage;
+}());
+exports.ModalLaunchCrudPage = ModalLaunchCrudPage;
+
+},{"../../dao/dao-launchs":3,"../../util/date-util":10,"@angular/core":159,"ionic-angular":473}],8:[function(require,module,exports){
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = require('@angular/core');
+var ionic_angular_1 = require('ionic-angular');
+var ionic_native_1 = require('ionic-native');
+var date_util_1 = require('../../util/date-util');
+var dao_launchs_1 = require('../../dao/dao-launchs');
+var modal_launch_crud_1 = require('../modal-launch-crud/modal-launch-crud');
+var ModalLaunchsPage = (function () {
+    function ModalLaunchsPage(viewCtrl, params, navCtrl, modalCtrl, alertCtrl) {
+        this.viewCtrl = viewCtrl;
+        this.params = params;
+        this.navCtrl = navCtrl;
+        this.modalCtrl = modalCtrl;
+        this.alertCtrl = alertCtrl;
+        this.view = viewCtrl;
+        this.modal = modalCtrl;
+        this.alert = alertCtrl;
+        this.accountsList = params.get("params") || {};
+        this.dao = new dao_launchs_1.DAOLaunchsPage();
+    }
+    ModalLaunchsPage.prototype.cancel = function () {
+        this.view.dismiss();
+    };
+    ModalLaunchsPage.prototype.edit = function (launch) {
+        var _this = this;
+        var modalLaunchs = this.modal.create(modal_launch_crud_1.ModalLaunchCrudPage, { params: launch });
+        modalLaunchs.onDismiss(function (data) {
+            if (data) {
+                _this.dao.edit(data, function (launch) {
+                    ionic_native_1.Toast.showShortBottom("Compra alterada com sucesso!")
+                        .subscribe(function (toast) {
+                        console.log(toast);
+                    });
+                });
+            }
+        });
+        modalLaunchs.present(modalLaunchs);
+    };
+    ModalLaunchsPage.prototype.delete = function (launch) {
+        var _this = this;
+        var confirm = this.alert.create({
+            title: 'Excluir',
+            body: 'Quer mesmo excluir essa compra?',
+            buttons: [
+                {
+                    text: 'Sim',
+                    handler: function () {
+                        _this.dao.delete(launch, function (data) {
+                            var pos = _this.accountsList.indexOf(launch);
+                            _this.accountsList.splice(pos, 1);
+                            ionic_native_1.Toast.showShortBottom("Conta excluída com sucesso!")
+                                .subscribe(function (toast) {
+                                console.log(toast);
+                            });
+                        });
+                    }
+                },
+                {
+                    text: 'Não'
+                }
+            ]
+        });
+        confirm.present();
+    };
+    ModalLaunchsPage.prototype.getDate = function (accounts) {
+        var dateUtil = new date_util_1.DateUtil();
+        return dateUtil.parseString(accounts.date);
+    };
+    ModalLaunchsPage.prototype.accountsModalLaunchIn = function (launch) {
+        return launch.inOut == "in";
     };
     ModalLaunchsPage = __decorate([
         core_1.Component({
             templateUrl: 'build/pages/modal-launchs/modal-launchs.html',
         }), 
-        __metadata('design:paramtypes', [ionic_angular_1.ViewController, ionic_angular_1.NavParams])
+        __metadata('design:paramtypes', [ionic_angular_1.ViewController, ionic_angular_1.NavParams, ionic_angular_1.NavController, ionic_angular_1.ModalController, ionic_angular_1.AlertController])
     ], ModalLaunchsPage);
     return ModalLaunchsPage;
 }());
 exports.ModalLaunchsPage = ModalLaunchsPage;
 
-},{"../../dao/dao-accounts":3,"../../util/date-util":11,"@angular/core":159,"ionic-angular":473}],10:[function(require,module,exports){
+},{"../../dao/dao-launchs":3,"../../util/date-util":10,"../modal-launch-crud/modal-launch-crud":7,"@angular/core":159,"ionic-angular":473,"ionic-native":500}],9:[function(require,module,exports){
 "use strict";
 var AccountUtil = (function () {
     function AccountUtil() {
@@ -686,18 +601,36 @@ var AccountUtil = (function () {
     };
     AccountUtil.prototype.getTotalValue = function (obj) {
         if (obj) {
-            var result = { account: obj[0].account, totalValue: 0 };
+            var icon = this.getIcon(obj[0].account);
+            var result = { account: obj[0].account, totalValue: 0, icon: icon };
             for (var i = 0; i < obj.length; i++) {
                 result.totalValue += obj[i].value;
             }
             return result;
         }
     };
+    AccountUtil.prototype.getIcon = function (account) {
+        if (account == 'Alimentação') {
+            return 'pizza';
+        }
+        else if (account == 'Mercado') {
+            return 'cart';
+        }
+        else if (account == 'Lazer') {
+            return 'logo-playstation';
+        }
+        else if (account == 'Carro') {
+            return 'car';
+        }
+        else if (account == 'Renda') {
+            return 'logo-usd';
+        }
+    };
     return AccountUtil;
 }());
 exports.AccountUtil = AccountUtil;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 var DateUtil = (function () {
     function DateUtil() {
@@ -742,7 +675,147 @@ var DateUtil = (function () {
 }());
 exports.DateUtil = DateUtil;
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = require('@angular/core');
+var account_util_1 = require('../util/account-util');
+var LaunchHistoryUtil = (function () {
+    function LaunchHistoryUtil() {
+        this.totalAllCategories = [];
+        this.balanceAndIncome = [];
+        this.totalBalance = { account: "Saldo", totalValue: 0, icon: null };
+        this.totalIncome = {};
+        this.totalMarket = {};
+        this.totalLazer = {};
+        this.totalFood = {};
+        this.totalCar = {};
+    }
+    LaunchHistoryUtil.prototype.filterCategories = function (list) {
+        this.accountUtil = new account_util_1.AccountUtil();
+        this.market = list.filter(this.accountUtil.getMarket);
+        this.lazer = list.filter(this.accountUtil.getLazer);
+        this.food = list.filter(this.accountUtil.getFood);
+        this.car = list.filter(this.accountUtil.getCar);
+        this.income = list.filter(this.accountUtil.getIncome);
+    };
+    LaunchHistoryUtil.prototype.getTotalSpendCategory = function (account) {
+        var spend = { account: null, totalValue: 0 };
+        spend = this.accountUtil.getTotalValue(account);
+        this.totalBalance.totalValue -= spend.totalValue;
+        this.totalAllCategories.push(spend);
+    };
+    LaunchHistoryUtil.prototype.getTotalBalance = function () {
+        var balance = { account: null, totalValue: 0 };
+        var spend = {
+            account: "Total de gastos",
+            totalValue: this.totalBalance.totalValue,
+            icon: "thumbs-down"
+        };
+        if (this.income.length > 0) {
+            this.balanceAndIncome.push(spend);
+            balance = this.accountUtil.getTotalValue(this.income);
+            this.totalBalance.totalValue += balance.totalValue;
+            this.totalBalance.icon = this.getIconIncome(this.totalBalance.totalValue);
+            this.totalAllCategories.push(balance);
+            this.balanceAndIncome.push(this.totalBalance);
+            return this.totalAllCategories;
+        }
+        else {
+            this.balanceAndIncome.push(spend);
+            this.balanceAndIncome.push(this.totalBalance);
+            return this.totalAllCategories;
+        }
+    };
+    LaunchHistoryUtil.prototype.getBalanceAndIncome = function () {
+        return this.balanceAndIncome;
+    };
+    LaunchHistoryUtil.prototype.getTotalValuesAllCategories = function () {
+        if (this.market.length > 0) {
+            this.getTotalSpendCategory(this.market);
+        }
+        if (this.lazer.length > 0) {
+            this.getTotalSpendCategory(this.lazer);
+        }
+        if (this.food.length > 0) {
+            this.getTotalSpendCategory(this.food);
+        }
+        if (this.car.length > 0) {
+            this.getTotalSpendCategory(this.car);
+        }
+        return this.getTotalBalance();
+    };
+    LaunchHistoryUtil.prototype.getAccount = function (obj) {
+        if (obj.account == "Mercado") {
+            return this.market;
+        }
+        else if (obj.account == "Lazer") {
+            return this.lazer;
+        }
+        else if (obj.account == "Alimentação") {
+            return this.food;
+        }
+        else if (obj.account == "Carro") {
+            return this.car;
+        }
+        else if (obj.account == "Renda") {
+            return this.income;
+        }
+    };
+    LaunchHistoryUtil.prototype.getFirstDayHistory = function (date) {
+        var month = date.getMonth();
+        var year = date.getFullYear();
+        var firstDay = new Date(year, month, 1);
+        return firstDay;
+    };
+    LaunchHistoryUtil.prototype.getLastDayHistory = function (date) {
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        var lastDay = new Date(year, month, 0);
+        return lastDay;
+    };
+    LaunchHistoryUtil.prototype.isEmpty = function () {
+        while (this.totalAllCategories.length > 0) {
+            this.totalAllCategories.pop();
+        }
+        while (this.balanceAndIncome.length > 0) {
+            this.balanceAndIncome.pop();
+        }
+        this.totalBalance.totalValue = 0;
+    };
+    LaunchHistoryUtil.prototype.accountsHistoryIn = function (obj) {
+        if (obj.account == "Saldo" && obj.totalValue >= 0)
+            return true;
+        else
+            false;
+    };
+    LaunchHistoryUtil.prototype.getIconIncome = function (income) {
+        if (income >= 0) {
+            return "thumbs-up";
+        }
+        else {
+            return "thumbs-down";
+        }
+    };
+    LaunchHistoryUtil = __decorate([
+        core_1.Component({
+            templateUrl: 'build/pages/history/history.html'
+        }), 
+        __metadata('design:paramtypes', [])
+    ], LaunchHistoryUtil);
+    return LaunchHistoryUtil;
+}());
+exports.LaunchHistoryUtil = LaunchHistoryUtil;
+
+},{"../util/account-util":9,"@angular/core":159}],12:[function(require,module,exports){
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.

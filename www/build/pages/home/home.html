@@ -1,3 +1,58 @@
-<ion-tabs primary>
-	<ion-tab [root]="launchs" tabTitle="Colocar compra"></ion-tab>
-</ion-tabs>
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Compras</ion-title>
+    <button menuToggle>
+    	<ion-icon name="menu"></ion-icon>
+    </button>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content class="launchs" padding>
+
+    <ion-list class="item-font" no-lines>
+        <ion-item *ngFor="let item of totalAllCategories" (click)="getCategoryLaunchAccounts(item)">
+            <ion-row>
+                <ion-col width-10>
+                    <ion-icon name="{{item.icon}}"></ion-icon>
+                </ion-col>
+                 <ion-col width-50>
+                    <h2>{{item.account}}</h2>
+                </ion-col>
+
+                <ion-col width-33>
+                    <!--<p>{{item.totalValue | currency:"BRL":true:1.2}}</p>-->
+                    <h2>R${{item.totalValue}}</h2>
+                </ion-col>
+            </ion-row>
+        </ion-item>  
+    </ion-list>
+
+    <ion-list class="item-font" no-lines>
+        <ion-item *ngFor="let item of balanceAndIncome" [ngClass]="{in: accountsHistoryIn(item), out: !accountsHistoryIn(item)}">
+            <ion-row>
+                <ion-col style="font-size:150%;" width-10>
+                    <ion-icon name="{{item.icon}}"></ion-icon>
+                </ion-col>
+                <ion-col [ngClass]="{balance: !isIncome(item.account), income: isIncome(item.account)}" width-50>
+                    <h1 style="font-size:90%;">{{item.account}}</h1>
+                </ion-col>
+                <ion-col width-20>
+                    <!--<p>{{item.totalValue | currency:"BRL":true:1.2}}</p>-->
+                    <h1>R${{item.totalValue}}</h1>
+                </ion-col>
+            </ion-row>
+        </ion-item>  
+    </ion-list>
+
+    <button fab fab-bottom fab-right danger (click)="insert()"><ion-icon name="add"></ion-icon></button>
+
+</ion-content>
+
+
+<!--<ion-tabs primary>
+	<ion-tab [root]="launchs"></ion-tab>
+</ion-tabs> -->
+

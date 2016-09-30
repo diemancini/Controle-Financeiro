@@ -1,0 +1,56 @@
+<ion-header>
+
+	<ion-navbar>
+		<ion-buttons start>
+			<button (click)="cancel()"><ion-icon name="close"></ion-icon></button>
+		</ion-buttons>
+		<ion-title>Compra</ion-title>
+	</ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding class="modal-launch">
+	<ion-list>
+
+		<ion-item>
+			<ion-label stacked>Descrição</ion-label>
+			<ion-input type="text" [(ngModel)]="launch.description"></ion-input>
+		</ion-item>
+
+		<ion-item>
+			<ion-label stacked>Valor</ion-label>
+			<ion-input type="number" [(ngModel)]="launch.value"></ion-input>
+		</ion-item>
+
+		<ion-item>
+			<ion-label stacked>Data</ion-label>
+			<ion-input type="date" [(ngModel)]="launch.date"></ion-input>
+		</ion-item>
+
+		<ion-item>
+			<ion-label stacked>Entrata/Saída</ion-label>
+			<ion-select [(ngModel)]="launch.inOut">
+				<ion-option value="in">Entrada</ion-option>
+				<ion-option value="out">Saída</ion-option>
+			</ion-select>
+		</ion-item>
+
+		<ion-item>
+			<ion-label stacked>Pago</ion-label>
+			<ion-checkbox [(ngModel)]="launch.payed"></ion-checkbox>
+		</ion-item>
+
+		<ion-item>
+			<ion-label stacked>Conta</ion-label>
+			<ion-select type="text" [(ngModel)]="launch.account">
+				<ion-option *ngFor="let item of accountList" value="{{item.description}}">{{item.description}}
+				</ion-option>
+			</ion-select>
+		</ion-item>
+
+	</ion-list>
+
+	<button block light (click)="save()">Salvar</button>
+
+</ion-content>

@@ -9486,3 +9486,56 @@ body {
 
 .text-principal {
   text-align: center; }
+
+.toolbar-background {
+  background-color: red; }
+
+.toolbar-title {
+  color: white; }
+
+.bar-button-default {
+  color: white; }
+
+.item-font {
+  font-family: Comic Sans, cursive;
+  font-style: italic;
+  font-stretch: ultra-condensed; }
+
+.income {
+  font-size: 200%;
+  text-align: center; }
+
+.balance {
+  font-size: 140%;
+  text-align: center; }
+
+.in {
+  color: green; }
+
+.out {
+  color: red; }
+
+.text-principal {
+  text-align: center; }
+
+.toolbar-background {
+  background-color: red; }
+
+.toolbar-title {
+  color: white; }
+
+.bar-button-default {
+  color: white; }
+
+.item-font {
+  font-family: Comic Sans, cursive;
+  font-style: italic;
+  font-stretch: ultra-condensed; }
+
+.income {
+  font-size: 200%;
+  text-align: center; }
+
+.balance {
+  font-size: 140%;
+  text-align: center; }

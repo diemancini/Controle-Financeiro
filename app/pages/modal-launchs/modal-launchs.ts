@@ -1,43 +1,91 @@
 import { Component } from '@angular/core';
-import { ViewController, NavParams } from 'ionic-angular';
-import { DAOAccountsPage } from '../../dao/dao-accounts';
+import { ViewController, NavParams, NavController, ModalController, AlertController } from 'ionic-angular';
+import { Toast } from 'ionic-native';
 import { DateUtil } from '../../util/date-util';
+import { DAOLaunchsPage } from '../../dao/dao-launchs';
+import { ModalLaunchCrudPage } from '../modal-launch-crud/modal-launch-crud';
+
 
 @Component({
     templateUrl: 'build/pages/modal-launchs/modal-launchs.html',
 })
 
 export class ModalLaunchsPage {
-	private view: any;
-	private launch: any;
 	private dao: any;
-	private accountList: any;
+	private view: any;
+	private modal: any;
+	private alert: any;
+	private accountsList: any;
 
-	constructor(private viewCtrl: ViewController, private params: NavParams) {
+	constructor(private viewCtrl: ViewController,
+				private params: NavParams,
+				private navCtrl: NavController,
+				private modalCtrl: ModalController,
+				private alertCtrl: AlertController) {
 
 		this.view = viewCtrl;
-		this.launch = params.get("params") || {};
-
-		this.dao = new DAOAccountsPage();
-		this.accountList = this.dao.accountList;
+		this.modal = modalCtrl;
+		this.alert = alertCtrl;
+		this.accountsList = params.get("params") || {};
+		this.dao = new DAOLaunchsPage();
 	}
 
 	public cancel() {
 		this.view.dismiss();
 	}
 
-	public save() {
-		let dateUtil = new DateUtil;
-		let newDate = dateUtil.parseDate(this.launch.date);
+	public edit(launch) {
+		let modalLaunchs= this.modal.create(ModalLaunchCrudPage, {params: launch});
 
-		this.launch.payed = this.launch.payed ? 1 : 0;
-		this.launch.date = this.getDate(this.launch.date);
-		this.view.dismiss(this.launch);
+		modalLaunchs.onDismiss((data) => {
+			if (data) {
+				this.dao.edit(data, (launch) => {
+					Toast.showShortBottom("Compra alterada com sucesso!")
+						.subscribe(toast => {
+							console.log(toast);
+						});
+				});
+			}
+		});
+
+		modalLaunchs.present(modalLaunchs);
 	}
 
-	public getDate(date) {
+	public delete(launch) {
+		let confirm = this.alert.create({
+			title: 'Excluir',
+			body: 'Quer mesmo excluir essa compra?',
+			buttons: [
+				{
+					text: 'Sim',
+					handler: () => {
+						this.dao.delete(launch, (data) => {
+							let pos = this.accountsList.indexOf(launch);
+							this.accountsList.splice(pos, 1);
+
+							Toast.showShortBottom("Conta excluída com sucesso!")
+								.subscribe(toast => {
+									console.log(toast);
+								});
+						});
+					}
+				},
+				{
+					text: 'Não'
+				}
+			]
+		});
+
+		confirm.present();
+	}
+
+
+	public getDate(accounts) {
 		let dateUtil = new DateUtil();
-		return dateUtil.formatDate(date);
+		return dateUtil.parseString(accounts.date);
 	}
 
+	public accountsModalLaunchIn(launch) {
+		return launch.inOut == "in";
+	}
 }
